@@ -1,0 +1,27 @@
+public class Main {
+
+    public static void main(String[] args) {
+        criarTabelaSeNaoExistir();
+
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            AgendaView view = new AgendaView();
+            new AgendaController(view);
+        });
+    }
+
+    public static void criarTabelaSeNaoExistir() {
+        String sql = "CREATE TABLE IF NOT EXISTS contatos (" +
+                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                     "nome TEXT NOT NULL," +
+                     "email TEXT NOT NULL," +
+                     "telefone TEXT NOT NULL)";
+
+        try (java.sql.Connection conn = ConexaoBD.conectar();
+             java.sql.Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            System.out.println("Tabela criada/verificada com sucesso.");
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}

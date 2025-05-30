@@ -1,0 +1,57 @@
+public class AgendaController {
+    private AgendaView view;
+    private DefaultTableModel tableModel;
+    private ContatoDAO dao;
+
+    public AgendaController(AgendaView view) {
+        this.view = view;
+        this.dao = new ContatoDAO();
+        this.tableModel = (DefaultTableModel) view.getTabela().getModel();
+        carregarContatos();
+        initListeners();
+    }
+
+    private void carregarContatos() {
+        for (Contato c : dao.listar()) {
+            tableModel.addRow(new Object[]{c.getNome(), c.getEmail(), c.getTelefone()});
+        }
+    }
+
+    private void initListeners() {
+        view.getBotaoCadastrar().addActionListener(e -> {
+            String nome = view.getCampoNome().getText();
+            String email = view.getCampoEmail().getText();
+            String telefone = view.getCampoTelefone().getText();
+            Contato novo = new Contato(nome, email, telefone);
+            dao.salvar(novo);
+            tableModel.addRow(new Object[]{nome, email, telefone});
+            limparCampos();
+        });
+
+        view.getBotaoLimpar().addActionListener(e -> limparCampos());
+
+        view.getBotaoExcluir().addActionListener(e -> {
+            int row = view.getTabela().getSelectedRow();
+            if (row != -1) {
+                String nome = (String) tableModel.getValueAt(row, 0);
+                dao.excluir(nome);
+                tableModel.removeRow(row);
+            }
+        });
+
+        view.getBotaoAlterar().addActionListener(e -> {
+            int row = view.getTabela().getSelectedRow();
+            if (row != -1) {
+                view.getCampoNome().setText((String) tableModel.getValueAt(row, 0));
+                view.getCampoEmail().setText((String) tableModel.getValueAt(row, 1));
+                view.getCampoTelefone().setText((String) tableModel.getValueAt(row, 2));
+            }
+        });
+    }
+
+    private void limparCampos() {
+        view.getCampoNome().setText("");
+        view.getCampoEmail().setText("");
+        view.getCampoTelefone().setText("");
+    }
+}
